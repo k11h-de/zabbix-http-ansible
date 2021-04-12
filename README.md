@@ -1,6 +1,7 @@
 # zabbix-http-ansible
 
-the purpose of this automation is to easily ensure http health checks in zabbix from a yaml dictionary
+the purpose of this ansible automation is to easily ensure http/s health checks in zabbix from a yaml dictionary
+It is also integrated with gitlab CI
 
 ## install
 
@@ -21,14 +22,18 @@ please refer to the [zabbix docs](https://www.zabbix.com/documentation/5.2/manua
 
 ```yaml
 health_checks:
-  - check_url:          "https://www.example.com/blog"    # required
-    check_timeout:      "15s"                             # optional; time to spend for check processing; default is set in vars_global.yaml
-                                                          # time suffixes are supported, e.g. 30s, 1m, 1h
-    check_returncode:   "200"                             # optional; list of expected HTTP status codes; default is set in vars_global.yaml
-                                                          # range is also supoorted, for example:  "200,201,210-299"
-    check_searchstring: "Welcome"                         # optional; regular expression pattern; e.g. "Welcome.*admin"
-  - check_url: "https://api.example.com/endpoint/search?query=token"
+  - check_url:          "https://www.example.com/blog" # required; URL to check
+    check_timeout:      "5s"       # optional; time to spend for check processing; default is set in vars_global.yaml
+                                   # time suffixes are supported, e.g. 30s, 1m, 1h
+    check_returncode:   "200"      # optional; list of expected HTTP status codes; default is set in vars_global.yaml
+                                   # range is also supoorted, for example:  "200,201,210-299"
+    check_searchstring: "Welcome"  # optional; regular expression pattern for searching the returned content 
+                                   # e.g. "Welcome.*admin"
+
+  - check_url:          "https://api.example.com/endpoint/search?query=token" # example to check search function
     check_searchstring: "Results for: token"
+
+  - check_url:          "http://k11h.de"                                      # minimal example
 ```
 
 apply the changes with this command
