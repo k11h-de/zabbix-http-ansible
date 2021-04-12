@@ -3,7 +3,7 @@
 the purpose of this ansible automation is to easily ensure http/s health checks in zabbix from a yaml dictionary
 It is also integrated with gitlab CI and uses ansible to utilize the zabbix api to create http/s checks, create graphs and has a trigger to alert you
 
-**feature:**
+**features:**
 * creates health checks via zabbix api from a yaml dictionary
 * gitlab ci integration
 * zabbix check with graphs and trigger 
