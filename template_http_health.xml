@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<zabbix_export>
+    <version>5.2</version>
+    <date>2020-04-10T17:22:25Z</date>
+    <groups>
+        <group>
+            <name>Templates</name>
+        </group>
+    </groups>
+    <templates>
+        <template>
+            <template>Template HTTP Health</template>
+            <name>Template HTTP Health</name>
+            <groups>
+                <group>
+                    <name>Templates</name>
+                </group>
+            </groups>
+            <httptests>
+                <httptest>
+                    <name>health</name>
+                    <delay>30s</delay>
+                    <steps>
+                        <step>
+                            <name>health</name>
+                            <url>{$CHECK_URL}</url>
+                            <check_timeout>{$CHECK_TIMEOUT}</check_timeout>
+                            <required>{$CHECK_SEARCH_STRING}</required>
+                            <status_codes>{$CHECK_RETURNCODE}</status_codes>
+                        </step>
+                    </steps>
+                </httptest>
+            </httptests>
+            <macros>
+                <macro>
+                    <macro>{$CHECK_RETURNCODE}</macro>
+                </macro>
+                <macro>
+                    <macro>{$CHECK_SEARCH_STRING}</macro>
+                </macro>
+                <macro>
+                    <macro>{$CHECK_TIMEOUT}</macro>
+                </macro>
+                <macro>
+                    <macro>{$CHECK_URL}</macro>
+                </macro>
+            </macros>
+        </template>
+    </templates>
+    <triggers>
+        <trigger>
+            <expression>{Template HTTP Health:web.test.fail[health].last()}&gt;0</expression>
+            <name>http health</name>
+            <priority>DISASTER</priority>
+            <manual_close>YES</manual_close>
+        </trigger>
+    </triggers>
+    <graphs>
+        <graph>
+            <name>health response time</name>
+            <graph_items>
+                <graph_item>
+                    <color>F63100</color>
+                    <item>
+                        <host>Template HTTP Health</host>
+                        <key>web.test.time[health,health,resp]</key>
+                    </item>
+                </graph_item>
+            </graph_items>
+        </graph>
+    </graphs>
+</zabbix_export>

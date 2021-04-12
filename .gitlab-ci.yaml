@@ -1,0 +1,17 @@
+variables:
+  ANSIBLE_FORCE_COLOR: "true"
+
+ansible_run:
+  stage: deploy
+  image: cytopia/ansible:latest
+  script:
+    - echo $ANSIBLE_VAULT_PASS > ~/.ansible-vault-pass
+    - ansible-galaxy collection install community.zabbix
+    - ansible-playbook --vault-password-file ~/.ansible-vault-pass main.yml
+  only:
+    changes:
+      - main.yml
+      - vars_global.yaml
+      - vars_checks.yaml
+    refs:
+      - main

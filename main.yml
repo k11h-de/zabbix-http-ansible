@@ -1,0 +1,94 @@
+---
+
+- name: "init"
+  hosts: localhost
+  gather_facts: no
+  tasks:
+    - name: "ensure required module"
+      pip:
+        name:
+          - "zabbix-api"
+        state: present
+      changed_when: false
+
+- name: "ensure checks"
+  hosts: localhost
+  gather_facts: no
+  vars_files:
+    - "{{ playbook_dir }}/vars_global.yaml"
+    - "{{ playbook_dir }}/vars_checks.yaml"
+  tasks:
+    - name: "create or update an existing host's info in zabbix"
+      community.zabbix.zabbix_host:
+        server_url: "{{ zabbix_url }}"
+        login_user: "{{ zabbix_api_user }}"
+        login_password: "{{ zabbix_api_pass }}"
+        host_name: "{{ item.check_url | urlsplit('hostname') }}{{ item.check_url | urlsplit('port') }}{{ item.check_url | urlsplit('path') | regex_replace('/','_') }}"
+        link_templates:
+          - "{{ zabbix_template }}"
+        interfaces:
+          - type: 1
+            main: 1
+            useip: 0
+            ip: ""
+            dns: "{{ item.check_url | urlsplit('hostname') }}"
+            port: 10050
+        status: enabled
+        state: present
+        inventory_mode: "disabled"
+        validate_certs: no
+      changed_when: false
+      loop: "{{ health_checks }}"
+      loop_control:
+        label: "{{ item.check_url }}"
+    - name: "ensure macro CHECK_URL"
+      community.zabbix.zabbix_hostmacro:
+        server_url: "{{ zabbix_url }}"
+        login_user: "{{ zabbix_api_user }}"
+        login_password: "{{ zabbix_api_pass }}"
+        host_name: "{{ item.check_url | urlsplit('hostname') }}{{ item.check_url | urlsplit('port') }}{{ item.check_url | urlsplit('path') | regex_replace('/','_') }}"
+        macro_name: "CHECK_URL"
+        macro_value: "{{ item.check_url }}"
+        validate_certs: no
+      loop: "{{ health_checks }}"
+      loop_control:
+        label: "{{ item.check_url }}"
+    - name: "ensure macro CHECK_TIMEOUT"
+      community.zabbix.zabbix_hostmacro:
+        server_url: "{{ zabbix_url }}"
+        login_user: "{{ zabbix_api_user }}"
+        login_password: "{{ zabbix_api_pass }}"
+        host_name: "{{ item.check_url | urlsplit('hostname') }}{{ item.check_url | urlsplit('port') }}{{ item.check_url | urlsplit('path') | regex_replace('/','_') }}"
+        macro_name: "CHECK_TIMEOUT"
+        macro_value: "{{ item.check_timeout | default( default_check_timeout ) }}"
+        validate_certs: no
+      loop: "{{ health_checks }}"
+      loop_control:
+        label: "{{ item.check_url }}"
+      when: item.check_timeout is defined
+    - name: "ensure macro CHECK_RETURNCODE"
+      community.zabbix.zabbix_hostmacro:
+        server_url: "{{ zabbix_url }}"
+        login_user: "{{ zabbix_api_user }}"
+        login_password: "{{ zabbix_api_pass }}"
+        host_name: "{{ item.check_url | urlsplit('hostname') }}{{ item.check_url | urlsplit('port') }}{{ item.check_url | urlsplit('path') | regex_replace('/','_') }}"
+        macro_name: "CHECK_RETURNCODE"
+        macro_value: "{{ item.check_returncode | default( default_check_returncode ) }}"
+        validate_certs: no
+      loop: "{{ health_checks }}"
+      loop_control:
+        label: "{{ item.check_url }}"
+      when: item.check_returncode is defined
+    - name: "ensure macro CHECK_SEARCH_STRING"
+      community.zabbix.zabbix_hostmacro:
+        server_url: "{{ zabbix_url }}"
+        login_user: "{{ zabbix_api_user }}"
+        login_password: "{{ zabbix_api_pass }}"
+        host_name: "{{ item.check_url | urlsplit('hostname') }}{{ item.check_url | urlsplit('port') }}{{ item.check_url | urlsplit('path') | regex_replace('/','_') }}"
+        macro_name: "CHECK_SEARCH_STRING"
+        macro_value: "{{ item.check_searchstring }}"
+        validate_certs: no
+      loop: "{{ health_checks }}"
+      loop_control:
+        label: "{{ item.check_url }}"
+      when: item.check_searchstring is defined

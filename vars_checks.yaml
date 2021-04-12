@@ -1,0 +1,7 @@
+---
+
+health_checks:
+  - check_url:            "https://www.example.com/blog/"
+    check_timeout:        "20s"
+    check_returncode:     "200-399"
+    check_searchstring:   "Welcome"
